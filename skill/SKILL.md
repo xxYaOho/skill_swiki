@@ -26,9 +26,16 @@ docs/simple-wiki:
 `agents/librarian` : 管理和编译知识
 `agents/swarm-reader` : 阅读者, 协作完成大量知识的阅读和消化, 提炼知识核心
 
+**子代理状态反馈**
+
+- `DONE`: 完成任务, 找到文档且内容可信
+- `BLOCKED`: 前提未满足, 没有相关内容
+
+执行中发现的存疑或矛盾不单列状态, 一律经 `scripts/lint.sh` 记入 `LINT.md`.
+
 ## Quick Start
 
-在工作区中执行 `ls docs | grep "wiki"`  检查是否已创建, simple-wiki 不存在时, 执行 `scripts/init.sh`  完成首次创建. 
+在工作区中执行 `ls docs/simple-wiki` 检查是否已创建, 不存在时执行 `scripts/init.sh` 完成首次创建.
 
 > **定制 SCHEMA**
 > (可选) SCHEMA 标准无法满足源材料的编译时, 向用户提议是否调整 SCHEMA, 完善标准.
@@ -41,33 +48,23 @@ docs/simple-wiki:
 
 确认该知识内容的价值, 是否值得收录进 simple-wiki. 值得收录情况下, 将文档移入 `raw/` 中, 并派遣子代理 librarian 完成知识的编译.
 
-**价值判断**
+**价值**
 
-对话过程中的讨论和无法证伪结论, 不纳入知识内容范围. 探索时的研究发现, 实践时的踩坑记录和无法从代码中直接发现的知识, 才值得收录. 
+不收录过渡性结论 —— 依赖本次对话上下文、未经独立验证、仍在演进的判断, 它们还不够稳定. 只收录已沉淀的知识: 探索时的研究发现、实践时的踩坑记录、无法从代码中直接发现的知识. 判据: 独立于对话成立、可复现或可验证、不会因后续探讨轻易推翻.
 
 ### 查阅
 
-先从 `docs/simple-wiki/wiki/INDEX.md` 了解现有内容, 再调取相关笔记文档, 做进一步查阅. 不要将  wiki 中编译后的文档作为唯一真源, 遇到前后冲突或矛盾点, 则结合 raw 源材料一起阅读, 确认真相全貌
+先从 `docs/simple-wiki/wiki/INDEX.md` 了解现有内容, 再调取相关笔记文档, 做进一步查阅. 不要将 wiki 中编译后的文档作为唯一真源, 遇到前后冲突或矛盾点, 则结合 raw 源材料一起阅读, 确认真相全貌
 
 **蜂群**
 
-需要查阅大量资料(预计 token ≥ 64k)时, 先使用 skill yes-subagents 蜂群模式让子代理完成阅读, 从中挑出核心知识再重点查阅.
+需要查阅大量资料(预计 token ≥ 64k)时, 使用 skill yes-subagents 蜂群模式让 swarm-reader 完成阅读, 从中挑出核心知识再重点查阅.
 
-**状态**
+## Compound Interest
 
-- `DONE`: 找到且内容可信
-- `UNCERTAIN`: 找到了但内容存在疑点
-  - frontmatter 标为 contested/superseded，或阅读中发现与其他页/raw 材料矛盾
-  - 仍可参考, 但需注明疑点，并追加一条记录到 `LOG.md` 中
-- `BLOCKED`: 没有相关内容
+查阅本身也产生知识. 识别到值得沉淀的综合（多篇 wiki 的对比、关联、汇总, 且独立于本次对话仍成立）时, agent 主动向用户提议, 或响应用户的要求 —— 价值判断由 human 兜底, agent 提议但不擅自决定. 确认后, agent 整理相关 wiki 写一份笔记入 `raw/`, librarian 随后或下次跟进编译成综合页. 独立篇与综合篇并存, 冗余可接受.
 
-**更新 LOG.md**
-
-UNCERTAIN 时追加一行，延续已定的可 grep 格式：
-
-```
-## [YYYY-MM-DD] query | uncertain | <page> | <一句话疑点>
-```
+笔记须注明综合自哪些 wiki 页, 保证溯源链（综合页 → raw 笔记 → 原 wiki 页 → 各自 raw）不断. 何时压缩精炼由 human 把握, 不在技能里规定.
 
 ## Organize
 
