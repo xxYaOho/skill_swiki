@@ -30,6 +30,7 @@
 !**/.env.example
 **/credentials
 **/secrets
+tests/
 
 # 编辑器
 .vscode/

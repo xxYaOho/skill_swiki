@@ -1,0 +1,57 @@
+{
+  "skill_name": "yes-swiki",
+  "evals": [
+    {
+      "id": 0,
+      "name": "invest-sample",
+      "prompt": "项目里的 docs/RESEARCH 积了不少量化研究文档，帮我收进知识库，方便以后查阅。",
+      "expected_output": "docs/simple-wiki 结构建立, 10 份材料入 raw/ 且正文不变, 编译页 frontmatter 完整且 sources 有效, INDEX/LOG 同步",
+      "files": [],
+      "assertions": [
+        "wiki-structure-created",
+        "raw-body-immutable",
+        "raw-frontmatter-valid",
+        "wiki-page-frontmatter-valid",
+        "wiki-pages-sourced",
+        "compile-not-one-to-one",
+        "index-synced",
+        "log-appended",
+        "coverage-complete"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "sketch-triage",
+      "prompt": "sketch-sync-token 项目做了几个月，docs/ 下面有 research、plans、specs、evidence 好几类文档，帮我整理进知识库。",
+      "expected_output": "research 类知识进入 wiki; plans/evidence 过渡性内容不进入知识层; 甄别判据在 SUMMARY 中有说明",
+      "files": [],
+      "assertions": [
+        "wiki-structure-created",
+        "research-ingested",
+        "plans-excluded-from-knowledge-layer",
+        "evidence-excluded-from-knowledge-layer",
+        "specs-treated-appropriately",
+        "triage-rationale-documented",
+        "raw-frontmatter-valid",
+        "index-synced",
+        "log-appended"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "consult-swarm",
+      "prompt": "帮我梳理 quant-lite 这条线的完整演进：从池子退化诊断到 PE 条件因子再到 phase2 OOS，中间哪些结论被后续验证推翻了、哪些还站得住？我下周要决定是否继续这条线。",
+      "expected_output": "对 30 份文档的 fixture wiki 分片派遣阅读, DOUBTS 汇总上报待裁决, 演进链三节点全覆盖, 推翻/仍成立结论分开陈述且可溯源",
+      "files": [],
+      "assertions": [
+        "swarm-dispatched",
+        "doubts-surfaced-not-written",
+        "no-unilateral-knowledge-writes",
+        "evolution-chain-covered",
+        "overthrown-vs-standing-separated",
+        "claims-sourced",
+        "cross-page-synthesis"
+      ]
+    }
+  ]
+}
