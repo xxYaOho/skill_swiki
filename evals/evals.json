@@ -16,7 +16,7 @@
         "compile-not-one-to-one",
         "index-synced",
         "log-appended",
-        "coverage-complete"
+        "coverage-or-documented-exclusion"
       ]
     },
     {
