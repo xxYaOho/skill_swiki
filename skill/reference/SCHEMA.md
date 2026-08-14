@@ -9,15 +9,17 @@
 
 ```yaml
 ---
-ingested: false   # false=未编译, true=已编译
-metadata: ~     # 预留扩展字段, 暂不使用
+class: material   # material=正常编译; evidence=仅作引用凭证, 不产生独立编译页
+ingested: false   # false=未处理, true=已处理 (已编译, 或已被引用)
+metadata: ~     # 收纳源文档自带 frontmatter 的原有字段, 无则 ~
 ---
 ```
 
 - 正文（body）永不修改，是真源；frontmatter 可编辑（元数据）。
-- `ingested: false` 表示未编译：orchestrator 放入 raw/ 时标记；librarian 编译完成（wiki 页 + INDEX + LOG 都同步）后翻为 `true`。
+- 源文档自带 frontmatter 时，其原有字段（title/date 等原样键值）收纳进 `metadata` 保留，不得丢弃；正文以前端两个 `---` 块之后的部分为准。
+- `ingested: false` 表示未处理：orchestrator 放入 raw/ 时标记；librarian 处理完成后翻为 `true`。material 的处理 = 编译（wiki 页 + INDEX + LOG 都同步）；evidence 的处理 = 被相关编译页纳入 `sources` 引用。
+- evidence 若停留在 `ingested: false`，说明尚无任何页引用它 —— 编译相关材料时须接线并同趟翻 `true`；确实无引用归宿时在报告中点出，不得静默翻转。
 - 增量判断新内容 = 扫描 `raw/` 中 `ingested: false` 的条目。
-- `metadata` 预留，暂不使用。
 
 ## Page types
 
@@ -44,7 +46,7 @@ sources: [raw/file1.md, raw/file2.md]   # 该页依据的源材料, 一律指向
 topic: <所属主题, 与 INDEX 的 Topic 分组对应>
 tags: [tag1, tag2]
 status: current | superseded | contested
-context: 16   # 该页 token 开销(单页, 不含关联文件), 单位 k, 由 scripts/calculation-token.sh 估算
+context: 16   # 该页 token 开销(单页, 不含关联文件), 整数, 单位 k, 由 scripts/calculation-token.sh 估算输出, 直接写入不带后缀
 ---
 ```
 
@@ -59,6 +61,11 @@ context: 16   # 该页 token 开销(单页, 不含关联文件), 单位 k, 由 s
 ## Cross-references
 
 - 在概念被提及处, 用相对 markdown 链接内联关联页面。只维护前向链接，不手动维护反向链接。
+- 路径约定 (目录结构固定, 直接依赖):
+  - wiki 页间互链: `page.md` (同目录)
+  - wiki → raw: `../raw/<file>.md`
+  - frontmatter `sources`: `raw/<file>.md` (以 simple-wiki 根为基准)
+  - 链接目标用完整文件名, 不截断不臆造
 
 ## Contradiction handling
 
@@ -76,7 +83,7 @@ context: 16   # 该页 token 开销(单页, 不含关联文件), 单位 k, 由 s
 - [title](<file>.md) | <context>k | <一句话描述> | tag, tag
 ```
 
-查阅时, agent 从 INDEX 挑出候选页, 对其 `context` 求和; 总量 ≥ 64k 时派遣 swarm-reader, 否则直接阅读。
+查阅时, agent 从 INDEX 挑出候选页, 对其 `context` 求和 (`context` 的单位即 k token); 求和 ≥ 64 时派遣 swarm-reader, 否则直接阅读。
 
 ## LOG
 

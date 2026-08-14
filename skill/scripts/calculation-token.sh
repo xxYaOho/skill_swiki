@@ -6,7 +6,7 @@
 #
 # 输出:
 #   tokens=<n>     估算 token 数
-#   context=<k>k   该页 context 值(向上取整到 k), 写入 frontmatter
+#   context=<k>    该页 context 值(向上取整的整数, 单位 k), 直接写入 frontmatter, 不带 k 后缀
 #
 # 换算规则(参考 OpenAI 主流估算, 粗略即可):
 #   - 汉字: 1 字 ≈ 1 token
@@ -30,4 +30,4 @@ TOKENS=$((CJK + NON_CJK_TOKENS))
 K=$(( (TOKENS + 999) / 1000 ))
 
 echo "tokens=${TOKENS}"
-echo "context=${K}k"
+echo "context=${K}"
