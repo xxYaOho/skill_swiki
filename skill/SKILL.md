@@ -2,7 +2,9 @@
 name: yes-swiki
 description: > 
   存在于项目中的小型知识文档图书馆, 有新的笔记文档, 研究研报等等具有知识属性的资料时, 请主动使用本技能, 进行收录
-argument-hint: 收录新材料 / 整理已有知识
+argument-hint: 收录 (或梳理) 知识
+matedata:
+  version: v0.1.0
 ---
 
 # Yes! Simple Wiki
@@ -27,7 +29,9 @@ docs/simple-wiki:
 `agents/librarian` : 管理和编译知识
 `agents/swarm-reader` : 阅读者, 协作完成大量知识的阅读和消化, 提炼知识核心. 只读不写; 发现的存疑以 DOUBTS 交回 orchestrator.
 
-查阅大量资料时, orchestrator 职责: 划分页面并派遣 swarm-reader; 汇总 DOUBTS 后先与 human 讨论, 确认属实才写入 LINT.md; 综合蒸馏结果时做跨页对比, 发现的矛盾同样先经 human 确认.
+> **DOUBTS**
+> 汇总 swarm-reader 关于 DOUBTS 反馈, 先确认是否属实, 无法判断则与用户进行讨论. 最后再写入到 LINT.md 中.
+> 综合蒸馏结果时做跨页对比, 发现的矛盾点也是同样.
 
 ## Quick Start
 
@@ -66,20 +70,20 @@ metadata: ~       # 收纳源文档自带 frontmatter 的原有字段, 无则 ~
 
 ### 馆藏整理
 
-两个信号来源：阅读时的即时反馈（写入 LINT.md），以及收录后的自然演变（过时/矛盾）。判断整理时机与规模依据 LINT.md 现状，不做定期体检。
+两个信号来源：阅读时的即时反馈（LINT.md），以及收录后的自然演变（过时/矛盾）。判断整理时机与规模依据 LINT.md 现状，不做定期体检。
 
 - **依据**: 读取 LINT.md「ESCALATE」区块之前的条目, 为空则跳过整理; 有条目时, 数量与关联性即为判据:
   - 孤立少量 → 轻微
   - 密集或同 type/根因 → 严重
-  - ESCALATE 区块若持续增长（人工长期未裁决），同样视为严重信号。
+  - ESCALATE 区块若持续增长，同样视为严重信号。
 - **轻微**: 派遣 librarian `mode=LINT scope=targeted`
 - **严重**: 使用 skill yes-subagents 的 quality-auditor combo, `SCHEMA.md` 作为约束参考进行全面体检, 向用户汇报结果并确认修复方案, 再由 librarian 执行 `mode=LINT scope=full` 完成修复.
 
 ## Compound Interest
 
-查阅本身也产生知识. 识别到值得沉淀的综合（多篇 wiki 的对比、关联、汇总, 且独立于本次对话仍成立）时, 主动向用户提议 (或响应要求). 获得用户确认后, 整理相关知识, 撰写笔记存入 `raw/`, 派遣 librarian 随后跟进编译. 独立篇与综合篇并存, 冗余可接受.
+查阅本身也产生知识. 发现值得沉淀的综合内容（多篇 wiki 的对比、关联、汇总, 且独立于本次对话仍成立）时, 主动向用户提议 (或响应要求). 获得用户确认后, 整理相关知识, 撰写笔记存入 `raw/`, 派遣 librarian 随后跟进编译. 独立篇与综合篇并存, 冗余可接受.
 
-知识复利笔记注明综合自哪些 wiki, 尽量保证溯源链不断. 何时压缩精炼由 human 把握.
+知识复利笔记注明综合自哪些 wiki, 尽量保证溯源链不断. 何时压缩精炼由用户把握.
 
 ```
 综合页 → raw 笔记 → 原 wiki 页 → 各自 raw
