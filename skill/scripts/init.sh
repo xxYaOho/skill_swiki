@@ -31,7 +31,7 @@ if [[ ! -f "${WIKI_ROOT}/wiki/INDEX.md" ]]; then
 > [!IMPORTANT]
 > Headline 2 为主题聚类, 无主题内容默认放在 Headline 1 中. 同主题条目达到 3 条时, 为它们创建独立主题.
 > 每页一行, 先查阅编译后的知识, 按需查阅源材料:
-> - [title](<file>.md) | <context>k | <一句话描述> | tag, tag
+> `- [title](raw/file.md) | <context>k | <一句话描述> | tag, tag`
 
 EOF
   echo "create  ${WIKI_ROOT}/wiki/INDEX.md"
@@ -45,7 +45,7 @@ if [[ ! -f "${WIKI_ROOT}/LOG.md" ]]; then
 # LOG
 
 > [!IMPORTANT]
-> 倒序添加, 最新日志在上方. 一个日期一个 H2, 内部收纳多条.
+> 倒序添加, 最新日志在上方. Headline 2 为日期, 内部收纳多条日志.
 > ~~~
 > ## YYYY-MM-DD
 > - <ingest|lint> | <主题或页面> | <一句话说明>
