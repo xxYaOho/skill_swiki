@@ -9,15 +9,16 @@
 
 ```yaml
 ---
-class: material   # material=正常编译; evidence=仅作引用凭证, 不产生独立编译页
-ingested: false   # false=未处理, true=已处理 (已编译, 或已被引用)
-metadata: ~     # 收纳源文档自带 frontmatter 的原有字段, 无则 ~
+class: material # material=正常编译; evidence=仅作引用凭证, 不产生独立编译页
+ingested: false # false=未处理, true=已处理 (已编译, 或已被引用)
+metadata: ~ # 收纳源文档自带 frontmatter 的原有字段, 无则 ~
 ---
 ```
 
 - 正文（body）永不修改，是真源；frontmatter 可编辑（元数据）。
 - 源文档自带 frontmatter 时，其原有字段（title/date 等原样键值）收纳进 `metadata` 保留，不得丢弃；正文以前端两个 `---` 块之后的部分为准。
-- `ingested: false` 表示未处理：orchestrator 放入 raw/ 时标记；librarian 处理完成后翻为 `true`。material 的处理 = 编译（wiki 页 + INDEX + LOG 都同步）；evidence 的处理 = 被相关编译页纳入 `sources` 引用。
+- `ingested: false` 表示未处理：orchestrator 放入 raw/ 时标记；librarian 处理完成后翻为 `true`。
+- material 的处理 = 编译（wiki 页 + INDEX + LOG 都同步）；evidence 的处理 = 被相关编译页纳入 `sources` 引用。
 - evidence 若停留在 `ingested: false`，说明尚无任何页引用它 —— 编译相关材料时须接线并同趟翻 `true`；确实无引用归宿时在报告中点出，不得静默翻转。
 - 增量判断新内容 = 扫描 `raw/` 中 `ingested: false` 的条目。
 
@@ -42,11 +43,11 @@ title: <简短、具体的标题>
 type: concept | entity | decision | pitfall | summary | synthesis
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
-sources: [raw/file1.md, raw/file2.md]   # 该页依据的源材料, 一律指向 raw/
+sources: [raw/file1.md, raw/file2.md] # 该页依据的源材料, 一律指向 raw/
 topic: <所属主题, 与 INDEX 的 Topic 分组对应>
 tags: [tag1, tag2]
 status: current | superseded | contested
-context: 16   # 该页 token 开销(单页, 不含关联文件), 整数, 单位 k, 由 scripts/calculation-token.sh 估算输出, 直接写入不带后缀
+context: 16 # 该页 token 开销(单页, 不含关联文件), 整数, 单位 k, 由 scripts/calculation-token.sh 估算输出, 直接写入不带后缀
 ---
 ```
 
