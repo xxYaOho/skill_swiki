@@ -9,7 +9,6 @@
 ```bash
 git clone https://github.com/xxYaOho/skill_swiki.git
 cd skill_swiki
-
 mkdir -p ~/.agents/skills
 ln -s "$(pwd)/skill" ~/.agents/skills/yes-swiki
 ```
