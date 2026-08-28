@@ -1,4 +1,9 @@
-# yes-swiki
+<div align="center">
+  <h1>Yes! Simple Wiki</h1>
+  <p><strong>超小型图书馆, 沉淀项目知识和事实真源</strong></p>
+</div>
+
+---
 
 项目内的小型知识文档图书馆（Agent Skill）：有新的笔记文档、研究报告等知识性资料时，主动收录沉淀，便于后续查阅。
 
