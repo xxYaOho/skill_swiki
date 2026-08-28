@@ -3,8 +3,8 @@ name: yes-swiki
 description: > 
   存在于项目中的小型知识文档图书馆, 有新的笔记文档, 研究研报等等具有知识属性的资料时, 请主动使用本技能, 进行收录
 argument-hint: 收录 (或梳理) 知识
-matedata:
-  version: v0.1.0
+metadata:
+  version: v0.3.2
 ---
 
 # Yes! Simple Wiki
@@ -40,13 +40,17 @@ docs/simple-wiki:
 > **定制 SCHEMA**
 > (可选) SCHEMA 标准无法满足原始材料的编译时, 向用户提议是否调整 SCHEMA, 完善标准.
 
+准备以下必要信息
+
+- `SKILL_SCRIPTS_DIR: <skill>/scripts`: 以 SKILL.md 所在目录为锚, `$(dirname "$(realpath <SKILL.md>)")/scripts`, 每次派遣现算, 不缓存.
+
 ## Manage
 
 两个主要的管理动作: 收录编译和馆藏整理.
 
 ### 收录编译
 
-整理原始材料, 格式化命名和添加元信息, 放入 `simple-wiki/raw` 中. 梳理一份待清单, 派遣 librarian 完成最终编译.
+整理原始材料, 格式化命名和添加元信息, 放入 `simple-wiki/raw` 中. 梳理一份待清单, 派遣 librarian  (提供 `$SKILL_SCRIPTS_DIR` ) 完成最终编译.
 
 ```yml
 ---
@@ -67,6 +71,10 @@ metadata: ~       # 收纳源文档自带 frontmatter 的原有字段, 无则 ~
 源文档自带 frontmatter 时, 原有字段收纳进 `metadata` 保留, 不丢弃 (正文以原 frontmatter 块之后为准).
 
 不收录: 纯施工清单 (checkbox TODO), 一次性状态日志, 临时输出, 未经验证的猜测。
+
+**异常**
+
+- 报告 context 缺算时,  orchestrator 直接运行 `<SKILL_SCRIPTS_DIR>/calculation-token.sh` 补算并回填对应页面, 不再派遣.
 
 ### 馆藏整理
 

@@ -47,11 +47,11 @@ sources: [raw/file1.md, raw/file2.md] # 该页依据的源材料, 一律指向 r
 topic: <所属主题, 与 INDEX 的 Topic 分组对应>
 tags: [tag1, tag2]
 status: current | superseded | contested
-context: 16 # 该页 token 开销(单页, 不含关联文件), 整数, 单位 k, 由 scripts/calculation-token.sh 估算输出, 直接写入不带后缀
+context: 16 # 该页 token 开销(单页, 不含关联文件), 整数, 单位 k, 由 librarian 经派遣注入的 SKILL_SCRIPTS_DIR 调用 calculation-token.sh 估算, 直接写入不带后缀
 ---
 ```
 
-`context` 是该页 token 开销的粗略估算（单页、不含关联文件），单位 k，由 `scripts/calculation-token.sh` 按字符/词数换算后向上取整。librarian 编译时运行该脚本填写。
+`context` 是该页 token 开销的粗略估算（单页、不含关联文件），单位 k，由 `calculation-token.sh` 按字符数换算后向上取整。librarian 编译时经派遣注入的 `SKILL_SCRIPTS_DIR` 定位并运行该脚本填写；脚本路径缺失时不阻塞编译，`context` 留空并在报告中上报，由 orchestrator 补算回填。
 
 > `raw/` 是所有源材料的统一入口, 无论来自外部文档, 还是 agent 在查阅中写下的笔记 —— 对编译而言没有区别。
 
