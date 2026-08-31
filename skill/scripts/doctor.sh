@@ -137,7 +137,6 @@ while IFS= read -r f; do
   cls="$(fm_top_value "$f" class)"
   ing="$(fm_top_value "$f" ingested)"
   bad=""
-  if [[ -z "$cls" && -z "$ing" && "$(fm_top_value "$f" title)" == "$(fm_top_value "$f" title)" ]]; then :; fi
   if [[ -z "$cls" ]]; then bad="missing class key"; fi
   if [[ -z "$ing" ]]; then bad="${bad:+$bad; }missing ingested key"; fi
   if [[ -n "$cls" && "$cls" != "material" && "$cls" != "evidence" ]]; then bad="${bad:+$bad; }class not in enum"; fi
