@@ -73,7 +73,7 @@ context: 16 # 该页 token 开销(单页, 不含关联文件), 整数, 单位 k,
 
 - 永不静默覆盖被取代的论断；旧论断保留供溯源，不删除。
 - `contested`（争议）：同一事实存在相互矛盾的论断，当前无法判定谁正确。相关论断并存，进入 ESCALATE 待人工裁决。
-- `superseded`（已被取代）：旧论断已被更新的源明确取代。旧论断保留并标注新论断及来源，由 librarian 直接标记，报告中点出。
+- `superseded`（已被取代）：旧论断已被更新的源明确取代。旧论断保留并标注新论断及来源，由 curator 直接标记，报告中点出。
 
 ## INDEX
 
@@ -99,4 +99,4 @@ context: 16 # 该页 token 开销(单页, 不含关联文件), 整数, 单位 k,
 ## Staleness
 
 - 一页视为过时: 当同主题下出现了更新且尚未调和的 `raw/` 源, 而该页仍停留在旧源之上。
-- 过时按 LINT 的 `stale` 类型处理: 经 human 确认后记入 LINT.md 主体, 由 librarian 核实后调和(更新页面或标 `superseded`), 不得静默消除。
+- 过时按 LINT 的 `stale` 类型处理: 经 human 确认后记入 LINT.md 主体, 由 curator 核实后调和(更新页面或标 `superseded`), 不得静默消除。

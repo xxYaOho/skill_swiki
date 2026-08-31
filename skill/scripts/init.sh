@@ -4,7 +4,7 @@
 # 幂等: 已存在的目录/文件一律跳过, 不覆盖, 不要求确认.
 # SCHEMA.md / LLM_WIKI.md 从 reference/ 拷贝为独立副本, 由馆员在工作区维护, 不再回读技能源.
 # AGENTS.md(工作区根): 不存在则复制 reference/AGENTS.md; 已存在则补齐缺失的 H2 section.
-# LINT.md 从 reference/ 拷贝为骨架(契约 + 「ESCALATE」区块), 之后由读者与 librarian 按契约维护.
+# LINT.md 从 reference/ 拷贝为骨架(契约 + 「ESCALATE」区块), 之后由读者与 curator 按契约维护.
 
 set -euo pipefail
 

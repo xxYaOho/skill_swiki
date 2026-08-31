@@ -4,7 +4,7 @@ description: >
   存在于项目中的小型知识文档图书馆, 有新的笔记文档, 研究研报等等具有知识属性的资料时, 请主动使用本技能, 进行收录
 argument-hint: 收录 (或梳理) 知识
 metadata:
-  version: v0.3.3
+  version: v0.4.0
 ---
 
 # Yes! Simple Wiki
@@ -26,7 +26,8 @@ docs/simple-wiki:
 
 **专属子代理**
 
-`agents/librarian` : 管理和编译知识
+`agents/librarian` : 收录编译知识
+`agents/curator` : 馆藏整理, 核实 LINT.md 条目与全馆体检
 `agents/swarm-reader` : 阅读者, 协作完成大量知识的阅读和消化, 提炼知识核心. 只读不写; 发现的存疑以 DOUBTS 交回 orchestrator.
 
 > **DOUBTS**
@@ -84,8 +85,8 @@ metadata: ~       # 收纳源文档自带 frontmatter 的原有字段, 无则 ~
   - 孤立少量 → 轻微
   - 密集或同 type/根因 → 严重
   - ESCALATE 区块若持续增长，同样视为严重信号。
-- **轻微**: 派遣 librarian `mode=LINT scope=targeted`
-- **严重**: 使用 skill yes-subagents 的 quality-auditor combo, `SCHEMA.md` 作为约束参考进行全面体检, 向用户汇报结果并确认修复方案, 再由 librarian 执行 `mode=LINT scope=full` 完成修复.
+- **轻微**: 派遣 curator `scope=targeted`
+- **严重**: 使用 skill yes-subagents 的 quality-auditor combo, `SCHEMA.md` 作为约束参考进行全面体检, 向用户汇报结果并确认修复方案, 再由 curator 执行 `scope=full` 完成修复.
 
 ## Compound Interest
 
