@@ -51,7 +51,7 @@ context: 16 # 该页 token 开销(单页, 不含关联文件), 整数, 单位 k,
 ---
 ```
 
-`context` 是该页 token 开销的粗略估算（单页、不含关联文件），单位 k，由 `calculation-token.sh` 按字符数换算后向上取整。librarian 编译时经派遣注入的 `SKILL_SCRIPTS_DIR` 定位并运行该脚本填写；脚本路径缺失时不阻塞编译，`context` 留空并在报告中上报，由 orchestrator 补算回填。
+`context` 是该页 token 开销的粗略估算（单页、不含关联文件），单位 k，由 `calculation-token.sh` 按字符数换算后向上取整。librarian 编译时经派遣注入的 `SKILL_SCRIPTS_DIR` 定位并运行该脚本填写；脚本路径缺失时不阻塞编译，`context` 留空并在报告中上报，由 orchestrator 补算回填。单页 context 上限 8k，超限时拆分页面而非混装（呼应 Naming「拆分而非混装」）。
 
 > `raw/` 是所有源材料的统一入口, 无论来自外部文档, 还是 agent 在查阅中写下的笔记 —— 对编译而言没有区别。
 
@@ -85,7 +85,7 @@ context: 16 # 该页 token 开销(单页, 不含关联文件), 整数, 单位 k,
 - [title](<file>.md) | <context>k | <一句话描述> | tag, tag
 ```
 
-查阅时, agent 从 INDEX 挑出候选页, 对其 `context` 求和 (`context` 的单位即 k token); 求和 ≥ 64 时派遣 swarm-reader, 否则直接阅读。
+查阅时, agent 从 INDEX 挑出候选页, 求和与阈值判断由 `scripts/context-stats.sh` 逐页实算完成 (token 先求和再换算 k; 总和 ≥ 64 时 `SWARM_ADVISE=true`, 派遣 swarm-reader, 否则直接阅读)——不做 INDEX 声明值手算 (声明值可能漂移, 仅供人类导航参考)。INDEX 总 context 上限 32k——INDEX 是每次查阅的固定入口成本, 超限意味着页面数量膨胀或主题规划失衡, 与用户讨论收纳 (冷页归档 synthesis / 主题重组), 不静默截断。
 
 ## LOG
 

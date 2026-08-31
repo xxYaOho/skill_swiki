@@ -4,7 +4,7 @@ description: >
   存在于项目中的小型知识文档图书馆, 有新的笔记文档, 研究研报等等具有知识属性的资料时, 请主动使用本技能, 进行收录
 argument-hint: 收录 (或梳理) 知识
 metadata:
-  version: v0.4.0
+  version: v0.5.0
 ---
 
 # Yes! Simple Wiki
@@ -34,16 +34,27 @@ docs/simple-wiki:
 > 汇总 swarm-reader 关于 DOUBTS 反馈, 先确认是否属实, 无法判断则与用户进行讨论. 最后再写入到 LINT.md 中.
 > 综合蒸馏结果时做跨页对比, 发现的矛盾点也是同样.
 
+## 准备信息
+
+- `SKILL_SCRIPTS_DIR: <skill>/scripts`: 以 SKILL.md 所在目录为锚, `$(dirname "$(realpath <SKILL.md>)")/scripts`, 每次派遣现算, 不缓存.
+
 ## Quick Start
 
-在工作区中执行 `ls docs/simple-wiki` 检查是否已创建, 不存在时执行 `scripts/init.sh` 完成首次创建.
+技能激活时按序执行:
+
+1. 运行 `<SKILL_SCRIPTS_DIR>/doctor.sh` 读头条 (doctor 守卫已在脚本内部完成重定向并输出解析后的 `WIKI_ROOT`, 无需 orchestrator 重跑): 无 git 上下文且无标记的告警场景 → 与用户确认工作区根或设 `WIKI_ROOT`. **不直接跑 init**, 拦截误写链.
+2. **只读判定 (先于任何 init)**: `WIKI_ROOT` 源于用户对外部库的显式指定 (他人项目 / 只读查阅意图) → 只读路径: 跳过 init 与一切写动作, 仅 doctor + stats + 查阅 (查阅产生的 Compound Interest 写入提议同样禁止, 产物交 orchestrator 转达库属主); 归属不明 → 向用户确认一次. 写入他人仓库是全流程最不可逆的动作.
+3. `NEED_INIT=true` (自有库) → 运行 init.sh, 以 doctor 输出的 `WIKI_ROOT` 作 env 传入 (守卫发生过重定向时, 先向用户展示落点并确认) → 复跑 doctor.
+4. `NEED_INIT=false` (自有库) → 仍运行一次 init.sh (幂等: 骨架静默跳过; 唯一可能动作是 AGENTS.md 缺 section 补齐, stderr 报告)——技能模板新增 H2 章节时存量工作区由此获得补齐路径; init 落点确认系于「守卫发生过重定向」事件 (step 3/4 皆然, 不系于步骤编号).
+5. init 非零退出细分: 模板缺失 → 报告技能安装不完整并停止; 其他非零 (EACCES / 只读挂载 / 磁盘满) → 原样转达用户, 不误诊为安装问题.
+6. 依据头条进入收录/整理/查阅分支:
+   - **收录**: `RAW_PENDING>0` → 派 librarian; `RAW_INVALID_FM>0` → `--detail` 取名单, frontmatter 修复 (键缺失 / 值不合规 / 块未闭合) 作为 librarian 派单的前置步骤或 orchestrator 直接补齐, 无法机械判定时与用户确认; `RAW_PENDING_EVIDENCE>0` → 收录报告点出未接线 evidence, 不触发派遣.
+   - **机械修复**: `INDEX_UNLISTED` / `INDEX_DANGLING` / `XLINK_DANGLING` / `XLINK_RAW` / `CONTEXT_DRIFT` 任一非零 → `--detail` 取名单 → 派 curator `scope: targeted` (机械修复类, 含 context 回填); 不阻塞当前查阅, 可并入同趟或下次整理.
+   - **整理**: 依据 `LINT_BODY` / `LINT_ESCALATE` / `LINT_TYPES` / `LINT_PARSE` 判据 (见「馆藏整理」); `LINT_PARSE=dirty` → 先修复 LINT 结构再判整理; `PAGE_OVERSIZED>0` 并列整理信号.
+   - **结构**: `INDEX_CONTEXT>32` → 向用户提议讨论收纳 (冷页归 synthesis / 主题重组), 由用户裁决.
 
 > **定制 SCHEMA**
 > (可选) SCHEMA 标准无法满足原始材料的编译时, 向用户提议是否调整 SCHEMA, 完善标准.
-
-准备以下必要信息
-
-- `SKILL_SCRIPTS_DIR: <skill>/scripts`: 以 SKILL.md 所在目录为锚, `$(dirname "$(realpath <SKILL.md>)")/scripts`, 每次派遣现算, 不缓存.
 
 ## Manage
 
@@ -75,16 +86,20 @@ metadata: ~       # 收纳源文档自带 frontmatter 的原有字段, 无则 ~
 
 **异常**
 
-- 报告 context 缺算时,  orchestrator 直接运行 `<SKILL_SCRIPTS_DIR>/calculation-token.sh` 补算并回填对应页面, 不再派遣.
+- 报告 context 缺算时,  orchestrator 直接运行 `<SKILL_SCRIPTS_DIR>/calculation-token.sh` 补算并回填对应页面, 不再派遣. (curator 经 doctor CONTEXT_DRIFT 名单的回填属整理趟, 优先; 两趟时序不相交.)
+
+### 查阅
+
+从 INDEX 挑选候选页后, 运行 `<SKILL_SCRIPTS_DIR>/context-stats.sh <候选页...>` (或 `--topic <主题名>`, Headline 1 暂挂条目走文件列表): `SWARM_ADVISE=true` → 派遣 swarm-reader; `false` → 内联直读. stats 非零退出分类处理: 缺页 → 修正清单重试; 无 topic → 核对 INDEX 主题名; 用法错 → 修命令——均不降级为无预算直读. 命中段零条目的提示注意主题名近似错字.
 
 ### 馆藏整理
 
-两个信号来源：阅读时的即时反馈（LINT.md），以及收录后的自然演变（过时/矛盾）。判断整理时机与规模依据 LINT.md 现状，不做定期体检。
+两个信号来源：阅读时的即时反馈（LINT.md），以及收录后的自然演变（过时/矛盾）。判断整理时机与规模依据 doctor 头条, 不做定期体检.
 
-- **依据**: 读取 LINT.md「ESCALATE」区块之前的条目, 为空则跳过整理; 有条目时, 数量与关联性即为判据:
+- **依据**: `LINT_BODY` / `LINT_ESCALATE` / `LINT_TYPES` (`LINT_PARSE=dirty` 时先修复 LINT 结构, 计数不可信):
   - 孤立少量 → 轻微
   - 密集或同 type/根因 → 严重
-  - ESCALATE 区块若持续增长，同样视为严重信号。
+  - ESCALATE 条目数偏高或持续未清 (历次激活均在) → 严重信号 (趋势由会话记忆/handoff 判断, doctor 是无状态点读取)
 - **轻微**: 派遣 curator `scope=targeted`
 - **严重**: 使用 skill yes-subagents 的 quality-auditor combo, `SCHEMA.md` 作为约束参考进行全面体检, 向用户汇报结果并确认修复方案, 再由 curator 执行 `scope=full` 完成修复.
 
