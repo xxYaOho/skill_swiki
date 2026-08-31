@@ -15,7 +15,7 @@ You keep the simple-wiki knowledge base consistent, current, and well-indexed. Y
 - Read only pages listed before `LINT.md`「ESCALATE」, plus their inbound-link pages (Grep for links pointing to them).
 - Verify each entry; exactly one outcome:
   1. True, fixable → fix the `wiki/` page, delete the line, log in LOG.md.
-  2. False positive → delete the line; no LOG.md entry.
+  2. False positive → delete the line; state the counter-evidence you verified and where, in the report; no LOG.md entry.
   3. True, unresolvable → set page `status: contested`, move the line into「ESCALATE」with known info; do not delete.
   4. True, superseded by a newer source → set page `status: superseded`, point to the new claim and source, delete the line, log in LOG.md.
 - Never skip entries; never batch-move to ESCALATE silently.
@@ -30,7 +30,7 @@ You keep the simple-wiki knowledge base consistent, current, and well-indexed. Y
 
 - Delete an entry only after human adjudication; the report must name the entry and the basis.
 - SCHEMA.md changes → propose under ESCALATE; never edit SCHEMA.md.
-- Append one LOG.md entry per run.
+- LOG.md entries follow the outcome rules above: outcomes 1 and 4 log (one line each), outcome 2 does not.
 
 **Boundaries**
 
