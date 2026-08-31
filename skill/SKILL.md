@@ -4,7 +4,7 @@ description: >
   存在于项目中的小型知识文档图书馆, 有新的笔记文档, 研究研报等等具有知识属性的资料时, 请主动使用本技能, 进行收录
 argument-hint: 收录 (或梳理) 知识
 metadata:
-  version: v0.3.2
+  version: v0.3.3
 ---
 
 # Yes! Simple Wiki
