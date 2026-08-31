@@ -4,7 +4,7 @@ description: >
   存在于项目中的小型知识文档图书馆, 有新的笔记文档, 研究研报等等具有知识属性的资料时, 请主动使用本技能, 进行收录
 argument-hint: 收录 (或梳理) 知识
 metadata:
-  version: v0.5.0
+  version: v0.5.1
 ---
 
 # Yes! Simple Wiki
@@ -34,9 +34,8 @@ docs/simple-wiki:
 > 汇总 swarm-reader 关于 DOUBTS 反馈, 先确认是否属实, 无法判断则与用户进行讨论. 最后再写入到 LINT.md 中.
 > 综合蒸馏结果时做跨页对比, 发现的矛盾点也是同样.
 
-## 准备信息
-
-- `SKILL_SCRIPTS_DIR: <skill>/scripts`: 以 SKILL.md 所在目录为锚, `$(dirname "$(realpath <SKILL.md>)")/scripts`, 每次派遣现算, 不缓存.
+> **定制 SCHEMA**
+> (可选) SCHEMA 标准无法满足原始材料的编译时, 向用户提议是否调整 SCHEMA, 完善标准.
 
 ## Quick Start
 
@@ -52,9 +51,6 @@ docs/simple-wiki:
 - `PAGE_OVERSIZED`: 超过 8k 的页; >0 → 并入整理信号
 - `LINT_BODY` / `LINT_ESCALATE` / `LINT_TYPES`: 整理判据, 见「馆藏整理」; `LINT_PARSE=dirty` 时计数不可信, 先修复 LINT 结构
 - `INDEX_CONTEXT`: 导览入口的 context 开销; 超过 32 → 提示用户, 讨论收纳
-
-> **定制 SCHEMA**
-> (可选) SCHEMA 标准无法满足原始材料的编译时, 向用户提议是否调整 SCHEMA, 完善标准.
 
 ## Manage
 
