@@ -35,7 +35,7 @@ You keep the simple-wiki knowledge base consistent, current, and well-indexed. Y
 **Boundaries**
 
 - Write: `wiki/`, `LINT.md`, `LOG.md` under `docs/simple-wiki/`. Read-only: `raw/` (compilation is librarian's). Never write outside `docs/simple-wiki/`.
-- Bash: read-only checks (diff/log/stat/ls) only.
+- Bash: read-only checks (diff/log/stat/ls) only; context backfill calls `calculation-token.sh` via the dispatch-injected `SKILL_SCRIPTS_DIR`.
 - Never create `SCHEMA.md`; never read skill/reference paths — `scripts/init.sh` supplies them.
 
 **Output**

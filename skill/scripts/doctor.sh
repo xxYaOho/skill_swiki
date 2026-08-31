@@ -70,6 +70,7 @@ fi
 if [[ $SKELETON_MISSING -eq 1 ]]; then
   printf 'NEED_INIT=true\n'
   printf 'WIKI_ROOT=%s\n' "$WIKI_ROOT_RESOLVED"
+  printf 'SKILL_SCRIPTS_DIR=%s\n' "$SCRIPT_DIR"
   exit 0
 fi
 
@@ -124,13 +125,13 @@ while IFS= read -r f; do
   if [[ "$name" != *.md ]]; then continue; fi
   if ! head -n 1 "$f" | grep -q '^---$'; then
     RAW_INVALID_FM=$((RAW_INVALID_FM+1))
-    D_IFM="${D_IFM}NO_FRONTMATTER: ${name}
+    D_IFM="${D_IFM}NO_FRONTMATTER: raw/${name}
 "
     continue
   fi
   if ! has_fm_block "$f"; then
     RAW_INVALID_FM=$((RAW_INVALID_FM+1))
-    D_IFM="${D_IFM}INVALID_FM: ${name} (unclosed block)
+    D_IFM="${D_IFM}INVALID_FM: raw/${name} (unclosed block)
 "
     continue
   fi
@@ -143,18 +144,18 @@ while IFS= read -r f; do
   if [[ -n "$ing" && "$ing" != "true" && "$ing" != "false" ]]; then bad="${bad:+$bad; }ingested not bool"; fi
   if [[ -n "$bad" ]]; then
     RAW_INVALID_FM=$((RAW_INVALID_FM+1))
-    D_IFM="${D_IFM}INVALID_FM: ${name} (${bad})
+    D_IFM="${D_IFM}INVALID_FM: raw/${name} (${bad})
 "
     continue
   fi
   if [[ "$ing" == "false" ]]; then
     if [[ "$cls" == "material" ]]; then
       RAW_PENDING=$((RAW_PENDING+1))
-      D_P="${D_P}PENDING: ${name}
+      D_P="${D_P}PENDING: raw/${name}
 "
     else
       RAW_PENDING_EVID=$((RAW_PENDING_EVID+1))
-      D_PE="${D_PE}PENDING_EVIDENCE: ${name}
+      D_PE="${D_PE}PENDING_EVIDENCE: raw/${name}
 "
     fi
   fi
@@ -184,13 +185,13 @@ scan_page_links() {
     case "$target" in
       ../raw/*.md)
         if [[ ! -f "$WIKI_ROOT_RESOLVED/raw/$(basename "$target")" ]]; then
-          printf 'XRAW\t%s\t%s\n' "$src" "$target"
+          printf 'XRAW\twiki/%s\traw/%s\n' "$src" "$(basename "$target")"
         fi
         ;;
       *.md)
         if [[ "$target" == */* ]]; then continue; fi   # 非同目录相对形态: 声明放弃
         if [[ ! -f "$WIKI_ROOT_RESOLVED/wiki/$target" ]]; then
-          printf 'XD\t%s\t%s\n' "$src" "$target"
+          printf 'XD\twiki/%s\twiki/%s\n' "$src" "$target"
         fi
         ;;
     esac
@@ -225,7 +226,7 @@ scan_sources() {
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
       if (s != "" && s !~ /\.md$/) s = s ".md"
       if (s != "" && s !~ /^raw\//) s = "raw/" s
-      if (s != "") print "XSRC\t" src "\t" s
+      if (s != "") print "XSRC\twiki/" src "\t" s
     }
   ' "$f" 2>/dev/null
 }
@@ -238,13 +239,13 @@ for f in "${WIKI_FILES[@]}"; do
   read -r ak at <<<"$(actual_k "$f")"
   if (( ak > PAGE_LIMIT )); then
     PAGE_OVERSIZED=$((PAGE_OVERSIZED+1))
-    D_OS="${D_OS}OVERSIZED: ${name} (${ak}k)
+    D_OS="${D_OS}OVERSIZED: wiki/${name} (${ak}k)
 "
   fi
   declared="$(fm_top_value "$f" context)"
   if [[ -n "$declared" && "$declared" =~ ^[0-9]+$ && "$declared" != "$ak" ]]; then
     CONTEXT_DRIFT=$((CONTEXT_DRIFT+1))
-    D_DR="${D_DR}DRIFT: ${name} (declared ${declared}k, actual ${ak}k)
+    D_DR="${D_DR}DRIFT: wiki/${name} (declared ${declared}k, actual ${ak}k)
 "
   fi
 
@@ -292,7 +293,7 @@ while IFS= read -r tgt; do
   [[ -z "$tgt" ]] && continue
   if [[ ! -f "$WIKI_ROOT_RESOLVED/wiki/$tgt" ]]; then
     INDEX_DANGLING=$((INDEX_DANGLING+1))
-    D_ID="${D_ID}INDEX_DANGLING: ${tgt}
+    D_ID="${D_ID}INDEX_DANGLING: wiki/${tgt}
 "
   fi
 done <<<"$INDEX_TARGETS"
@@ -302,7 +303,7 @@ for f in "${WIKI_FILES[@]}"; do
   name="$(basename "$f")"
   if ! grep -qF "](${name})" "$INDEX_FILE" 2>/dev/null; then
     INDEX_UNLISTED=$((INDEX_UNLISTED+1))
-    D_IU="${D_IU}INDEX_UNLISTED: ${name}
+    D_IU="${D_IU}INDEX_UNLISTED: wiki/${name}
 "
   fi
 done
@@ -370,6 +371,7 @@ fi
 # --- 输出 --------------------------------------------------------------------
 printf 'NEED_INIT=false\n'
 printf 'WIKI_ROOT=%s\n' "$WIKI_ROOT_RESOLVED"
+printf 'SKILL_SCRIPTS_DIR=%s\n' "$SCRIPT_DIR"
 printf 'RAW_COUNT=%s\n' "$RAW_COUNT"
 printf 'RAW_PENDING=%s\n' "$RAW_PENDING"
 printf 'RAW_PENDING_EVIDENCE=%s\n' "$RAW_PENDING_EVID"

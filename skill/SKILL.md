@@ -40,18 +40,18 @@ docs/simple-wiki:
 
 ## Quick Start
 
-技能激活时按序执行:
+激活技能时, 运行 `<SKILL_SCRIPTS_DIR>/doctor.sh` 读取馆藏状态, 按 KEY 决定下一步.
+外部库 (用户显式指定的他人项目) 为只读: 跳过 init 与一切写动作, 仅查阅.
 
-1. 运行 `<SKILL_SCRIPTS_DIR>/doctor.sh` 读头条 (doctor 守卫已在脚本内部完成重定向并输出解析后的 `WIKI_ROOT`, 无需 orchestrator 重跑): 无 git 上下文且无标记的告警场景 → 与用户确认工作区根或设 `WIKI_ROOT`. **不直接跑 init**, 拦截误写链.
-2. **只读判定 (先于任何 init)**: `WIKI_ROOT` 源于用户对外部库的显式指定 (他人项目 / 只读查阅意图) → 只读路径: 跳过 init 与一切写动作, 仅 doctor + stats + 查阅 (查阅产生的 Compound Interest 写入提议同样禁止, 产物交 orchestrator 转达库属主); 归属不明 → 向用户确认一次. 写入他人仓库是全流程最不可逆的动作.
-3. `NEED_INIT=true` (自有库) → 运行 init.sh, 以 doctor 输出的 `WIKI_ROOT` 作 env 传入 (守卫发生过重定向时, 先向用户展示落点并确认) → 复跑 doctor.
-4. `NEED_INIT=false` (自有库) → 仍运行一次 init.sh (幂等: 骨架静默跳过; 唯一可能动作是 AGENTS.md 缺 section 补齐, stderr 报告)——技能模板新增 H2 章节时存量工作区由此获得补齐路径; init 落点确认系于「守卫发生过重定向」事件 (step 3/4 皆然, 不系于步骤编号).
-5. init 非零退出细分: 模板缺失 → 报告技能安装不完整并停止; 其他非零 (EACCES / 只读挂载 / 磁盘满) → 原样转达用户, 不误诊为安装问题.
-6. 依据头条进入收录/整理/查阅分支:
-   - **收录**: `RAW_PENDING>0` → 派 librarian; `RAW_INVALID_FM>0` → `--detail` 取名单, frontmatter 修复 (键缺失 / 值不合规 / 块未闭合) 作为 librarian 派单的前置步骤或 orchestrator 直接补齐, 无法机械判定时与用户确认; `RAW_PENDING_EVIDENCE>0` → 收录报告点出未接线 evidence, 不触发派遣.
-   - **机械修复**: `INDEX_UNLISTED` / `INDEX_DANGLING` / `XLINK_DANGLING` / `XLINK_RAW` / `CONTEXT_DRIFT` 任一非零 → `--detail` 取名单 → 派 curator `scope: targeted` (机械修复类, 含 context 回填); 不阻塞当前查阅, 可并入同趟或下次整理.
-   - **整理**: 依据 `LINT_BODY` / `LINT_ESCALATE` / `LINT_TYPES` / `LINT_PARSE` 判据 (见「馆藏整理」); `LINT_PARSE=dirty` → 先修复 LINT 结构再判整理; `PAGE_OVERSIZED>0` 并列整理信号.
-   - **结构**: `INDEX_CONTEXT>32` → 向用户提议讨论收纳 (冷页归 synthesis / 主题重组), 由用户裁决.
+- `WIKI_ROOT` / `SKILL_SCRIPTS_DIR`: 路径信息, 派遣子代理时随派单注入
+- `NEED_INIT`: 是否需要初始化; 为 `true` 时运行 `<SKILL_SCRIPTS_DIR>/init.sh` (以 doctor 输出的 `WIKI_ROOT` 作 env 传入; 守卫发生过重定向时先与用户确认落点), 完成后复跑 doctor
+- `RAW_PENDING`: 待编译 raw 计数; >0 → 派 librarian, 附 `--detail` 名单与 `SKILL_SCRIPTS_DIR` (编译需调用 calculation-token.sh)
+- `RAW_INVALID_FM`: frontmatter 不合规的 raw (对编译不可见); >0 → `--detail` 取名单, 补齐后进入编译队列
+- `RAW_PENDING_EVIDENCE`: 未被引用的 evidence; >0 → 收录报告点出, 不派遣
+- `INDEX_UNLISTED` / `INDEX_DANGLING` / `XLINK_DANGLING` / `XLINK_RAW` / `CONTEXT_DRIFT`: 机械修复类; 任一 >0 → `--detail` 取名单 → 派 curator `scope: targeted` (注入两路径; context 回填调用 calculation-token.sh)
+- `PAGE_OVERSIZED`: 超过 8k 的页; >0 → 并入整理信号
+- `LINT_BODY` / `LINT_ESCALATE` / `LINT_TYPES`: 整理判据, 见「馆藏整理」; `LINT_PARSE=dirty` 时计数不可信, 先修复 LINT 结构
+- `INDEX_CONTEXT`: 导览入口的 context 开销; 超过 32 → 提示用户, 讨论收纳
 
 > **定制 SCHEMA**
 > (可选) SCHEMA 标准无法满足原始材料的编译时, 向用户提议是否调整 SCHEMA, 完善标准.
@@ -62,7 +62,7 @@ docs/simple-wiki:
 
 ### 收录编译
 
-整理原始材料, 格式化命名和添加元信息, 放入 `simple-wiki/raw` 中. 梳理一份待清单, 派遣 librarian  (提供 `$SKILL_SCRIPTS_DIR` ) 完成最终编译.
+整理原始材料, 格式化命名和添加元信息, 放入 `simple-wiki/raw` 中. 梳理一份待清单, 派遣 librarian (注入 `WIKI_ROOT` 与 `SKILL_SCRIPTS_DIR`) 完成最终编译.
 
 ```yml
 ---
@@ -100,7 +100,7 @@ metadata: ~       # 收纳源文档自带 frontmatter 的原有字段, 无则 ~
   - 孤立少量 → 轻微
   - 密集或同 type/根因 → 严重
   - ESCALATE 条目数偏高或持续未清 (历次激活均在) → 严重信号 (趋势由会话记忆/handoff 判断, doctor 是无状态点读取)
-- **轻微**: 派遣 curator `scope=targeted`
+- **轻微**: 派遣 curator `scope=targeted` (注入 `WIKI_ROOT` 与 `SKILL_SCRIPTS_DIR`)
 - **严重**: 使用 skill yes-subagents 的 quality-auditor combo, `SCHEMA.md` 作为约束参考进行全面体检, 向用户汇报结果并确认修复方案, 再由 curator 执行 `scope=full` 完成修复.
 
 ## Compound Interest
